@@ -1,0 +1,87 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "include": [],
+    "configurePresets": [
+        {
+            "name": "default",
+            "displayName": "Default Config",
+            "description": "Default build using Ninja generator",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/cmake_build/${presetName}",
+            "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
+            "hidden": true
+        },
+        {
+            "name": "debug",
+            "inherits": "default",
+            "displayName": "Debug Config",
+            "description": "Debug configuration",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release",
+            "inherits": "default",
+            "displayName": "Release Config",
+            "description": "Release configuration",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "release-debug",
+            "inherits": "default",
+            "displayName": "Release-Debug Config",
+            "description": "Release with debug information configuration",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "min-size-release",
+            "inherits": "default",
+            "displayName": "MinSize Release",
+            "description": "Minimum Size Release configuration",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Debug",
+            "configurePreset": "debug"
+        },
+        {
+            "name": "Release",
+            "configurePreset": "release"
+        },
+        {
+            "name": "RelWithDebInfo",
+            "configurePreset": "release-debug"
+        },
+        {
+            "name": "MinSizeRel",
+            "configurePreset": "min-size-release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "default",
+            "configurePreset": "debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        }
+    ]
+}
