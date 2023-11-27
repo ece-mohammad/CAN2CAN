@@ -36,11 +36,15 @@ PORT_DIR = Port/STM32F103xx
 # source
 ######################################
 # C sources
+# Core/Src/can2can_slave.c \
+
 C_SOURCES =  \
 Core/Src/main.c \
 Core/Src/gpio.c \
 Core/Src/freertos.c \
 Core/Src/can.c \
+Core/Src/usart.c \
+Core/Src/can2can_master.c \
 Core/Src/stm32f1xx_it.c \
 Core/Src/stm32f1xx_hal_msp.c \
 Core/Src/stm32f1xx_hal_timebase_tim.c \
@@ -59,6 +63,7 @@ Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_pwr.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_exti.c \
+Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c \
 Middlewares/Third_Party/FreeRTOS/Source/croutine.c \

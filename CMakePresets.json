@@ -10,16 +10,16 @@
         {
             "name": "default",
             "displayName": "Default Config",
+            "hidden": true,
             "description": "Default build using Ninja generator",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/cmake_build/${presetName}",
-            "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
-            "hidden": true
+            "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake"
         },
         {
             "name": "debug",
             "inherits": "default",
-            "displayName": "Debug Config",
+            "displayName": "Config: Debug",
             "description": "Debug configuration",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
@@ -28,7 +28,7 @@
         {
             "name": "release",
             "inherits": "default",
-            "displayName": "Release Config",
+            "displayName": "Config: Release",
             "description": "Release configuration",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
@@ -37,7 +37,7 @@
         {
             "name": "release-debug",
             "inherits": "default",
-            "displayName": "Release-Debug Config",
+            "displayName": "Config: Release-Debug",
             "description": "Release with debug information configuration",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
@@ -46,7 +46,7 @@
         {
             "name": "min-size-release",
             "inherits": "default",
-            "displayName": "MinSize Release",
+            "displayName": "Config: MinSize-Release",
             "description": "Minimum Size Release configuration",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "MinSizeRel"
@@ -55,20 +55,64 @@
     ],
     "buildPresets": [
         {
-            "name": "Debug",
-            "configurePreset": "debug"
+            "name": "default-build",
+            "hidden": true,
+            "verbose": true
+        },
+        {
+            "name": "rebuild",
+            "hidden": true,
+            "verbose": true,
+            "cleanFirst": true
+        },
+        {
+            "name": "debug",
+            "displayName": "Build: Debug",
+            "inherits": "default-build",
+            "configurePreset": "debug",
+        },
+        {
+            "name": "clean-debug",
+            "inherits": "rebuild",
+            "displayName": "Rebuild: Debug",
+            "configurePreset": "debug",
         },
         {
             "name": "Release",
-            "configurePreset": "release"
+            "displayName": "Build: Release",
+            "configurePreset": "release",
+            "inherits": "default-build"
+        },
+        {
+            "name": "clean-release",
+            "displayName": "Rebuild: Release",
+            "configurePreset": "release",
+            "inherits": "rebuild"
         },
         {
             "name": "RelWithDebInfo",
-            "configurePreset": "release-debug"
+            "displayName": "Build: RelWithDebInfo",
+            "hidden": false,
+            "configurePreset": "release-debug",
+            "inherits": "default-build"
+        },
+        {
+            "name": "RelWithDebInfo",
+            "displayName": "Rebuild: RelWithDebInfo",
+            "configurePreset": "release-debug",
+            "inherits": "rebuild"
         },
         {
             "name": "MinSizeRel",
-            "configurePreset": "min-size-release"
+            "displayName": "Build: MinSizeRel",
+            "configurePreset": "min-size-release",
+            "inherits": "default-build"
+        },
+        {
+            "name": "MinSizeRel",
+            "displayName": "Rebuild: MinSizeRel",
+            "configurePreset": "min-size-release",
+            "inherits": "rebuild"
         }
     ],
     "testPresets": [

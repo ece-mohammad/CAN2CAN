@@ -56,9 +56,11 @@
 /* USER CODE END 0 */
 #endif
 #define configUSE_PREEMPTION                     1
+#define configUSE_TIME_SLICING                   1
 #define configSUPPORT_STATIC_ALLOCATION          1
 #define configSUPPORT_DYNAMIC_ALLOCATION         0
 #define configUSE_IDLE_HOOK                      1
+#define configIDLE_SHOULD_YIELD                  1
 #define configUSE_TICK_HOOK                      0
 #define configCPU_CLOCK_HZ                       ( SystemCoreClock )
 #define configTICK_RATE_HZ                       ((TickType_t)1000)
@@ -74,6 +76,19 @@
 #define configCHECK_FOR_STACK_OVERFLOW           2
 #define configUSE_COUNTING_SEMAPHORES            1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION  1
+#define configRECORD_STACK_HIGH_ADDRESS          1
+
+/* queue sets ------------------------------------------------------------- */
+#define configUSE_QUEUE_SETS                     1
+
+
+/* timers ----------------------------------------------------------------- */
+#define configUSE_TIMERS                         1
+#define configTIMER_QUEUE_LENGTH                 3
+#define configTIMER_TASK_STACK_DEPTH             configMINIMAL_STACK_SIZE
+#define configTIMER_TASK_PRIORITY                (configMAX_PRIORITIES - 1)
+
+#define INCLUDE_xTimerPendFunctionCall           1
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                    0
