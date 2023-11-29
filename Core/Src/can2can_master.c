@@ -16,8 +16,8 @@ typedef enum {
 
 
 /* operation commands */
-static const uint8_t OperationCommandOFF[OPERATION_COMMAND_MSG_SIZE] = {0x55};
-static const uint8_t OperationCommandON [OPERATION_COMMAND_MSG_SIZE] = {0xAA};
+const OperationCommand_t OperationCommandOFF = OPERATION_COMMAND_OFF;
+const OperationCommand_t OperationCommandON  = OPERATION_COMMAND_ON;
 
 /* master node current state */
 static MasterNode_State_t MasterNode_CurrentState = MASTER_NODE_STATE_IDLE;
@@ -51,8 +51,8 @@ static const bxCAN_Filter_t MasterNode_CANRxFilter = {
   .as_struct = {
     .RTR = 0, /* data */
     .IDE = 0, /* standard ID */
-    // .StdId = OPERATION_STATUS_STD_ID
-    .StdId = OPERATION_COMMAND_STD_ID
+    .StdId = OPERATION_STATUS_STD_ID
+    // .StdId = OPERATION_COMMAND_STD_ID
   }
 };
 
@@ -84,13 +84,13 @@ static void MasterNode_TimerCallback(TimerHandle_t timer_handle) {
  * 
  * @param hcan [in] pointer to CAN handle that triggered the callback
  */
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+void MASTER_NODE_RX_FIFO_CALLBACK(CAN_HandleTypeDef *hcan) {
   BaseType_t xTaskWoken = pdFALSE;
   Event_t rx_event = {
     .type = CAN_RX_EVENT,
   };
 
-  HAL_CAN_DeactivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
+  configASSERT(HAL_CAN_DeactivateNotification(hcan, MASTER_NODE_RX_FIFO_NOTIFICATION) == HAL_OK);
 
   xQueueSendFromISR(MasterNode_EventQueueHandle, &rx_event, &xTaskWoken);
   portYIELD_FROM_ISR(xTaskWoken);
@@ -127,13 +127,20 @@ static StateResult_t MasterNode_Idle_StateHandler(const Event_t * const pEvent) 
 
   /* select command based on current operation status */
   if(MasterNode_CurrentOperationStatus.status == 0x00) {
-    command = OperationCommandON;
+    command = (uint8_t *)&OperationCommandON;
   } else {
-    command = OperationCommandOFF;
+    command = (uint8_t *)&OperationCommandOFF;
   }
 
   /* send command */
-  configASSERT(bxCAN_Transmit(command, OPERATION_COMMAND_MSG_SIZE, OPERATION_COMMAND_STD_ID, MasterNode_BxCANTxCompleteCallback) == HAL_OK);
+  configASSERT(
+    bxCAN_Transmit(
+      command, 
+      OPERATION_COMMAND_MSG_SIZE, 
+      OPERATION_COMMAND_STD_ID, 
+      MasterNode_BxCANTxCompleteCallback) 
+    == HAL_OK
+  );
 
   /* event was processed */
   return EVENT_HANDLED;
@@ -151,7 +158,6 @@ static StateResult_t MasterNode_Transmit_StateHandler(const Event_t * const pEve
 
   /* reset received message count */
   MasterNode_ReceivedMessages = 0;
-  configASSERT(HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING) == HAL_OK);
 
   /* event was processed */
   return EVENT_HANDLED;
@@ -163,7 +169,7 @@ static StateResult_t MasterNode_Transmit_StateHandler(const Event_t * const pEve
  * @param pEvent [in] pointer to the current event
  */
 static StateResult_t MasterNode_ReceiveStatus_StateHandler(const Event_t * const pEvent) {
-  uint8_t rx_message [8] = {0};
+  uint8_t rx_message [BXCAN_MAX_DATA_SIZE] = {0};
   uint16_t StdId = 0;
   uint8_t len = 0;
 
@@ -173,24 +179,19 @@ static StateResult_t MasterNode_ReceiveStatus_StateHandler(const Event_t * const
   }
 
   /* receive message from CAN RX message queue */
-  configASSERT(bxCAN_Receive(rx_message, &len, &StdId) == HAL_OK);
-  configASSERT(HAL_CAN_DeactivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING) == HAL_OK);
+  configASSERT(bxCAN_Receive(MASTER_NODE_RX_FIFO, rx_message, &len, &StdId) == HAL_OK);
+  configASSERT(HAL_CAN_ActivateNotification(&hcan, MASTER_NODE_RX_FIFO_NOTIFICATION) == HAL_OK);
 
-  if(rx_message[OPERATION_COMMAND_POS] == OperationCommandON[OPERATION_COMMAND_POS]) {
-    MasterNode_CurrentOperationStatus.status = 1;
-  } else {
-    MasterNode_CurrentOperationStatus.status = 0;
+  /* process received message */
+  MasterNode_CurrentOperationStatus.status = rx_message[0];
+  MasterNode_CurrentOperationStatus.value  = rx_message[1];
+  
+  /* update received message count */
+  MasterNode_ReceivedMessages++;
+  if(MasterNode_ReceivedMessages < OPERATION_STATUS_COUNT) {
+    /* event processed */
+    return EVENT_IGNORED;
   }
-
-  // /* process received message */
-  // MasterNode_CurrentOperationStatus.status = rx_message[0];
-  // MasterNode_CurrentOperationStatus.value  = rx_message[1];
-  // 
-  // MasterNode_ReceivedMessages++;
-  // if(MasterNode_ReceivedMessages < OPERATION_STATUS_COUNT) {
-  //   /* event processed */
-  //   return EVENT_IGNORED;
-  // }
   
   /* event processed */
   return EVENT_HANDLED;
@@ -208,7 +209,6 @@ static void MasterNode_TaskFunction(void *const pvParam) {
   xTimerStart(MasterNode_TimerHandle, portMAX_DELAY);
 
   while (1) {
-
     /* reset current event */
     memset(&current_event, 0x00, sizeof(Event_t));
 
@@ -248,13 +248,14 @@ void MasterNode_Initialize(void) {
   MasterNode_CurrentOperationStatus.value = 0;
   MasterNode_ReceivedMessages = 0;
 
-  // initialize CAN RX filters for operation status STD ID
+  /* initialize CAN RX filters for operation status STD ID */
   configASSERT(bxCAN_SetFilterPolicy(MASTER_NODE_POLICY_NUMBER, 
-    CAN_RX_FIFO0,
+    MASTER_NODE_RX_FIFO,
     MasterNode_CANRxFilter, 
     MasterNode_CANRxMask) == HAL_OK
   );
 
+  /* start CAN */
   if (hcan.State == HAL_CAN_STATE_READY) {
     configASSERT(bxCAN_Initialize() == HAL_OK);
   }
@@ -262,7 +263,7 @@ void MasterNode_Initialize(void) {
   /* initialize timer */
   MasterNode_TimerHandle = xTimerCreateStatic(
     "MasterNodeTimer", 
-    pdMS_TO_TICKS(1000 / OPERATION_COMMAND_FREQUENCY),
+    pdMS_TO_TICKS(1000u / OPERATION_COMMAND_FREQUENCY),
     pdTRUE,
     (const void* const)&MasterNode_TimerID,
     MasterNode_TimerCallback, 

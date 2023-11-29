@@ -98,6 +98,7 @@ int main(void) {
   /* Start scheduler */
   // osKernelStart();
   MasterNode_Initialize();
+  SlaveNode_Initialize();
 
   vTaskStartScheduler();
 

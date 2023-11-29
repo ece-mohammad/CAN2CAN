@@ -35,7 +35,7 @@ extern "C" {
 extern CAN_HandleTypeDef hcan;
 
 /* USER CODE BEGIN Private defines */
-
+#define BXCAN_MAX_DATA_SIZE   (8u)
 #define BXCAN_FILTER_BANK_MAX (14u)
 #define BXCAN_MAX_TX_FIFO     (3u)
 #define BXCAN_MAX_RX_FIFO     (3u)
@@ -59,6 +59,11 @@ typedef union bxCAN_Filter_t {
     uint32_t as_u32;
 } bxCAN_Filter_t;
 
+typedef enum {
+    BXCAN_RX_FIFO0 = CAN_RX_FIFO0,
+    BXCAN_RX_FIFO1 = CAN_RX_FIFO1,
+} bxCAN_RxFifo_t;
+
 typedef bxCAN_Filter_t bxCAN_Mask_t;
 
 typedef void (* bxCAN_TxCompleteCallback_t)(void);
@@ -71,7 +76,7 @@ void MX_CAN_Init(void);
 HAL_StatusTypeDef bxCAN_Initialize(void);
 HAL_StatusTypeDef bxCAN_SetFilterPolicy(uint8_t policy_number, uint8_t filter_fifo, bxCAN_Filter_t filter_id, bxCAN_Mask_t filter_mask);
 HAL_StatusTypeDef bxCAN_Transmit(const uint8_t *const data, uint8_t len, uint16_t std_id, bxCAN_TxCompleteCallback_t callback);
-HAL_StatusTypeDef bxCAN_Receive(uint8_t *data, uint8_t *len, uint16_t *std_id);
+HAL_StatusTypeDef bxCAN_Receive(bxCAN_RxFifo_t rx_fifo, uint8_t *data, uint8_t *len, uint16_t *std_id);
 void bxCAN_TxCompleteCallback(CAN_HandleTypeDef * hcan, uint32_t mailbox);
 /* USER CODE END Prototypes */
 

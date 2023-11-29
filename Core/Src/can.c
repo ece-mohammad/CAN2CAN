@@ -243,14 +243,14 @@ HAL_StatusTypeDef bxCAN_Transmit(const uint8_t *const data, uint8_t len, uint16_
 
 /* Blocking Receive ------------------------------------------------------- */
 
-HAL_StatusTypeDef bxCAN_Receive(uint8_t *data, uint8_t *len, uint16_t *std_id) {
+HAL_StatusTypeDef bxCAN_Receive(bxCAN_RxFifo_t rx_fifo, uint8_t *data, uint8_t *len, uint16_t *std_id) {
   CAN_RxHeaderTypeDef rx_header = {0};
 
   // wait a message on RX FIFO 0
-  while (HAL_CAN_GetRxFifoFillLevel(&hcan, CAN_RX_FIFO0) == 0) {
+  while (HAL_CAN_GetRxFifoFillLevel(&hcan, rx_fifo) == 0) {
   }
 
-  if (HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rx_header, data) != HAL_OK) {
+  if (HAL_CAN_GetRxMessage(&hcan, rx_fifo, &rx_header, data) != HAL_OK) {
     Error_Handler();
     return HAL_ERROR;
   }
@@ -290,8 +290,6 @@ void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan) {
 }
 
 void HAL_CAN_RxFifo0FullCallback(CAN_HandleTypeDef *hcan) {}
-
-// void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {}
 
 void HAL_CAN_RxFifo1FullCallback(CAN_HandleTypeDef *hcan) {}
 

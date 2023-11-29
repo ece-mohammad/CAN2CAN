@@ -31,7 +31,7 @@ set(SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/Core/Src/usart.c
   ${CMAKE_SOURCE_DIR}/Core/Src/can.c
   ${CMAKE_SOURCE_DIR}/Core/Src/can2can_master.c
-  # ${CMAKE_SOURCE_DIR}/Core/Src/can2can_slave.c
+  ${CMAKE_SOURCE_DIR}/Core/Src/can2can_slave.c
   ${CMAKE_SOURCE_DIR}/Core/Src/freertos.c
   ${CMAKE_SOURCE_DIR}/Core/Src/stm32f1xx_it.c
   ${CMAKE_SOURCE_DIR}/Core/Src/stm32f1xx_hal_msp.c

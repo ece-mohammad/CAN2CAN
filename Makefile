@@ -36,7 +36,6 @@ PORT_DIR = Port/STM32F103xx
 # source
 ######################################
 # C sources
-# Core/Src/can2can_slave.c \
 
 C_SOURCES =  \
 Core/Src/main.c \
@@ -44,6 +43,7 @@ Core/Src/gpio.c \
 Core/Src/freertos.c \
 Core/Src/can.c \
 Core/Src/usart.c \
+Core/Src/can2can_slave.c \
 Core/Src/can2can_master.c \
 Core/Src/stm32f1xx_it.c \
 Core/Src/stm32f1xx_hal_msp.c \

@@ -4,7 +4,7 @@ set(CMAKE_SYSTEM_PROCESSOR ARM)
 # NOTE: if arm-none-eabi-gcc is not in system's PATH, 
 # set TOOLCHAIN_PREFIX to the path to arm-none-eabi-gcc, 
 # ending with the prefix (arm-none-eabi-)
-set(TOOLCHAIN_PREFIX /home/pegasus/Tools/Compilers/ARM/gcc-arm-none-eabi-11.3-2023.9-x86_x64-linux/bin/arm-none-eabi-)
+set(TOOLCHAIN_PREFIX arm-none-eabi-)
 find_program(BINUTILS_PATH ${TOOLCHAIN_PREFIX}gcc NO_CACHE)
 
 # message(TOOLCHAIN_PREFIX: ${TOOLCHAIN_PREFIX})
